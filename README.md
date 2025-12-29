@@ -1,87 +1,114 @@
-# Multi-Branch Adaptive Collatz Random Number Generator (MBAC-RNG)
+# Collatz Dengesi Tabanlı Rastgele Sayı Üretici
 
-Bu proje, klasik **Collatz sanrısını** temel alarak geliştirilmiş,
-ancak onu **çok dallı dönüşümler**, **adaptif geri besleme** ve
-**hafıza tabanlı kaos mekanizması** ile genişleten
-özgün bir rastgele sayı üreteci algoritmasını içermektedir.
+Bu proje, **Collatz sanrısını** temel alarak geliştirilmiş,
+rastgele üretilen sayıların Collatz dizilerindeki
+**çift ve tek adımların dağılımını analiz eden**
+ve bu adımların mümkün olduğunca dengeli olduğu
+sayıları seçen bir rastgele sayı üretme algoritmasını içermektedir.
 
-Amaç, 0 ve 1 bitlerinin dağılımını mümkün olduğunca dengeli tutarken,
-her çalıştırmada farklı ve öngörülemez sonuçlar üretmektir.
-
----
-
-## 🔍 Collatz Sanrısının Kısa Özeti
-
-Bir pozitif tam sayı için:
-
-- Sayı çift ise → `n / 2`
-- Sayı tek ise → `3n + 1`
-
-Bu adımlar tekrarlandığında sayının 1’e ulaştığı varsayılır.
-Bu çalışma, bu deterministik yapıyı genişleterek
-rastgelelik üretiminde kullanmayı hedefler.
+Klasik rastgele sayı üreteçlerinden farklı olarak,
+bu algoritma yalnızca sayı üretmekle kalmaz,
+üretilen her sayıyı matematiksel bir yapı üzerinden
+değerlendirerek filtreler.
 
 ---
 
-## 🧠 Algoritmanın Özgün Yaklaşımı
+## 1. Collatz Sanrısı
 
-Bu algoritma, klasik Collatz yaklaşımından şu yönleriyle ayrılır:
+Collatz sanrısı, bir pozitif tam sayı üzerinde tanımlanan
+basit fakat davranışı karmaşık bir matematiksel süreçtir.
 
-### 🔹 1. Çok Dallı Dönüşüm Mekanizması
-Tek bir tek-sayı kuralı yerine birden fazla dönüşüm uygulanır:
+Kurallar şu şekildedir:
 
-| Durum | Dönüşüm |
-|-----|--------|
-| n çift | `n = n / 2` |
-| n % 4 == 1 | `n = 3n + 1` |
-| n % 4 == 3 | `n = 5n + 1` |
+- Sayı **çift** ise → `n / 2`
+- Sayı **tek** ise → `3n + 1`
 
-Bu yapı, sayı uzayında daha karmaşık ve öngörülemez bir hareket sağlar.
+Bu işlemler sayı `1` olana kadar tekrar edilir.
+Elde edilen sayı dizisi **Collatz dizisi** olarak adlandırılır.
 
 ---
 
-### 🔹 2. Geliştirilmiş Bit Üretim Mantığı
+## 2. Algoritmanın Amacı
 
-| Durum | Üretilen Bit |
-|-----|-------------|
-| Çift sayı | 1 |
-| n % 4 == 1 | 0 |
-| n % 4 == 3 | Rastgele (0 veya 1) |
+Bu çalışmanın temel amacı:
 
-Bu sayede bit dizisinin entropisi artırılmıştır.
+- Rastgele sayılar üretmek
+- Üretilen sayıların Collatz dizilerinde
+  - çift adım sayısı
+  - tek adım sayısı
+  arasındaki farkı analiz etmek
+- Bu farkın **belirli bir eşik değerin altında**
+  olduğu sayıları kabul etmek
 
----
-
-### 🔹 3. Adaptif Geri Besleme (Feedback)
-
-Algoritma, üretilen bitleri sürekli analiz eder:
-
-- 0’lar fazla ise → çiftliğe yönlendirme
-- 1’ler fazla ise → tekliğe yönlendirme
-
-Bu mekanizma, bit dengesini dinamik olarak korur.
+Bu yaklaşım sayesinde, rastgelelik ile
+yapısal denge birlikte sağlanır.
 
 ---
 
-### 🔹 4. Hafıza (Memory) Tabanlı Kaos
+## 3. Denge Ölçütü
 
-Eğer ardışık olarak aynı bitlerden oluşan bir desen tespit edilirse,
-algoritma kendi durumunu bozarak
-yeni bir sayı uzayına geçiş yapar.
+Bir sayının Collatz dizisi için denge oranı aşağıdaki
+formül ile hesaplanır:
 
-Bu özellik, periyodik döngülerin oluşmasını engeller.
+denge = |çift_adım - tek_adım| / (çift_adım + tek_adım)
+
+
+- `denge = 0` → tamamen dengeli
+- `denge → 1` → tamamen dengesiz
+
+Algoritma, yalnızca denge değeri
+kullanıcı tarafından belirlenen eşik değerinin
+altında kalan sayıları kabul eder.
 
 ---
 
-## 🔐 Rastgelelik ve Güvenlik Açısından Değerlendirme
+## 4. Algoritmanın Çalışma Adımları
 
-- Deterministik bir matematiksel yapı içerir
-- Rastgele sapmalarla öngörülebilirlik azaltılmıştır
-- Geniş anahtar uzayı sayesinde brute-force saldırılara karşı dirençlidir
-- Eğitim, simülasyon ve temel kriptografi deneyleri için uygundur
+Algoritma aşağıdaki adımları izler:
 
+1. Belirlenen aralıkta rastgele bir sayı üretilir
+2. Sayının Collatz dizisi hesaplanır
+3. Dizideki çift ve tek adımlar sayılır
+4. Denge oranı hesaplanır
+5. Denge oranı eşik değerinden küçükse sayı kabul edilir
+6. Yeterli sayıda dengeli sayı elde edilene kadar işlem tekrarlanır
 
-## ▶️ Kullanım
+Bu yapı, algoritmanın hem rastgele
+hem de kontrollü olmasını sağlar.
+
+---
+
+## 5. Görselleştirme ve Analiz
+
+Algoritma çıktıları üç farklı grafik ile analiz edilir:
+
+1. **Üretilen sayıların dağılımı**  
+   Rastgele üretilen sayıların değer aralığındaki frekans dağılımı
+
+2. **Çift ve tek adımların karşılaştırılması**  
+   Her sayı için çift ve tek adımların karşılıklı gösterimi
+
+3. **Denge oranlarının dağılımı**  
+   Üretilen sayıların ne kadar dengeli olduğunu gösteren histogram
+
+Bu grafikler, algoritmanın istatistiksel davranışını
+görsel olarak değerlendirmeyi mümkün kılar.
+
+---
+
+## 6. Kullanım
+
+Projeyi çalıştırmak için Python 3 yüklü bir ortam yeterlidir.
 
 ```bash
-python mbac_rng.py
+python collatz_rastgele_sayi_üretici.py
+
+Program çalıştırıldığında:
+
+Dengeli rastgele sayılar üretilir
+
+Çift ve tek adım istatistikleri hesaplanır
+
+Denge oranları analiz edilir
+
+Grafikler ekranda gösterilir
