@@ -1,44 +1,87 @@
-# Collatz Dengeli Sayı Üreteci
+# Multi-Branch Adaptive Collatz Random Number Generator (MBAC-RNG)
 
-Bu proje, Collatz varsayımına göre diziler üretirken, 0 (çift sayılar) ve 1 (tek sayılar) işlemlerinin sayısını olabildiğince eşit tutan rastgele sayılar üreten bir algoritma içerir.
+Bu proje, klasik **Collatz sanrısını** temel alarak geliştirilmiş,
+ancak onu **çok dallı dönüşümler**, **adaptif geri besleme** ve
+**hafıza tabanlı kaos mekanizması** ile genişleten
+özgün bir rastgele sayı üreteci algoritmasını içermektedir.
 
-## 📖 Collatz Varsayımı Nedir?
+Amaç, 0 ve 1 bitlerinin dağılımını mümkün olduğunca dengeli tutarken,
+her çalıştırmada farklı ve öngörülemez sonuçlar üretmektir.
 
-Collatz varsayımı (Collatz Conjecture), herhangi bir pozitif tam sayı ile başlayarak:
-- Sayı çift ise: 2'ye böl
-- Sayı tek ise: 3 ile çarp ve 1 ekle
+---
 
-Bu işlem tekrarlanarak her zaman 1 sayısına ulaşılacağını öne süren matematiksel bir varsayımdır.
+## 🔍 Collatz Sanrısının Kısa Özeti
 
-## 🎯 Projenin Amacı
+Bir pozitif tam sayı için:
 
-Bu algoritmanın amacı, Collatz dizilerindeki:
-- **0'lar (çift sayı adımları)** ve
-- **1'ler (tek sayı adımları)**
+- Sayı çift ise → `n / 2`
+- Sayı tek ise → `3n + 1`
 
-sayılarını olabildiğince eşit tutan başlangıç sayılarını bulmaktır.
+Bu adımlar tekrarlandığında sayının 1’e ulaştığı varsayılır.
+Bu çalışma, bu deterministik yapıyı genişleterek
+rastgelelik üretiminde kullanmayı hedefler.
 
-## 🚀 Özellikler
+---
 
-- **Akıllı Üretim**: Rastgele sayı üretir ve Collatz dengesini kontrol eder
-- **Parametrik Esneklik**: Minimum/maksimum sayı aralığı ve denge eşiği ayarlanabilir
-- **Görselleştirme**: 6 farklı grafikle sonuç analizi
-- **İstatistik Kaydı**: Üretim istatistikleri JSON formatında kaydedilir
-- **Kullanıcı Dostu Arayüz**: Komut satırından kolay kullanım
+## 🧠 Algoritmanın Özgün Yaklaşımı
 
-## 📁 Dosya Yapısı
-collatz-dengeli-sayi-uretici/
-├── collatz_dengeli_uretici.py # Ana program
-├── requirements.txt # Gerekli kütüphaneler
-├── README.md # Bu dosya
-├── LICENSE # MIT Lisansı
-└── .gitignore # Git ignore dosyası
+Bu algoritma, klasik Collatz yaklaşımından şu yönleriyle ayrılır:
 
-## 🔧 Kurulum
+### 🔹 1. Çok Dallı Dönüşüm Mekanizması
+Tek bir tek-sayı kuralı yerine birden fazla dönüşüm uygulanır:
 
-1. Python 3.7 veya üzeri yüklü olduğundan emin olun
-2. Proje dizininde terminal açın
-3. Gerekli kütüphaneleri yükleyin:
+| Durum | Dönüşüm |
+|-----|--------|
+| n çift | `n = n / 2` |
+| n % 4 == 1 | `n = 3n + 1` |
+| n % 4 == 3 | `n = 5n + 1` |
+
+Bu yapı, sayı uzayında daha karmaşık ve öngörülemez bir hareket sağlar.
+
+---
+
+### 🔹 2. Geliştirilmiş Bit Üretim Mantığı
+
+| Durum | Üretilen Bit |
+|-----|-------------|
+| Çift sayı | 1 |
+| n % 4 == 1 | 0 |
+| n % 4 == 3 | Rastgele (0 veya 1) |
+
+Bu sayede bit dizisinin entropisi artırılmıştır.
+
+---
+
+### 🔹 3. Adaptif Geri Besleme (Feedback)
+
+Algoritma, üretilen bitleri sürekli analiz eder:
+
+- 0’lar fazla ise → çiftliğe yönlendirme
+- 1’ler fazla ise → tekliğe yönlendirme
+
+Bu mekanizma, bit dengesini dinamik olarak korur.
+
+---
+
+### 🔹 4. Hafıza (Memory) Tabanlı Kaos
+
+Eğer ardışık olarak aynı bitlerden oluşan bir desen tespit edilirse,
+algoritma kendi durumunu bozarak
+yeni bir sayı uzayına geçiş yapar.
+
+Bu özellik, periyodik döngülerin oluşmasını engeller.
+
+---
+
+## 🔐 Rastgelelik ve Güvenlik Açısından Değerlendirme
+
+- Deterministik bir matematiksel yapı içerir
+- Rastgele sapmalarla öngörülebilirlik azaltılmıştır
+- Geniş anahtar uzayı sayesinde brute-force saldırılara karşı dirençlidir
+- Eğitim, simülasyon ve temel kriptografi deneyleri için uygundur
+
+
+## ▶️ Kullanım
 
 ```bash
-pip install -r requirements.txt
+python mbac_rng.py
